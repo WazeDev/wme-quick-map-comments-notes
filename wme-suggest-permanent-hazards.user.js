@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Suggest Permanent Hazards
 // @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      2025-06-04
+// @version      0.0.1
 // @description  Allow lower map editors to add a map note for a permanent hazard.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
@@ -10,7 +10,7 @@
 // @exclude      https://www.waze.com/discuss/*
 // @license      MIT
 // @grant        none
-// @require https://cdn.jsdelivr.net/gh/WazeSpace/wme-sdk-plus@latest/wme-sdk-plus.js
+// @require https://cdn.jsdelivr.net/gh/WazeSpace/wme-sdk-plus@06108853094d40f67e923ba0fe0de31b1cec4412/wme-sdk-plus.js
 // ==/UserScript==
 
 (function() {
