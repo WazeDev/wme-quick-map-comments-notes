@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Suggest Permanent Hazards
 // @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      0.0.6
+// @version      0.0.7
 // @description  Allow lower level map editors to add a map note for a permanent hazard.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
@@ -33,62 +33,77 @@
         addShortcuts();
     }
     async function addShortcuts() {
-        sdk.Shortcuts.createShortcut({
-            callback: function() {
-                createRailroadCrossingNote()
-            },
-            description: "Create Railroad Crossing Note",
-            shortcutId: "create-railroad-crossing-note",
-            shortcutKeys: null
-        })
-        sdk.Shortcuts.createShortcut({
-            callback: function() {
-                createSchoolZoneMapNote()
-            },
-            description: "Create School Zone Note",
-            shortcutId: "create-school-zone-note",
-            shortcutKeys: null
-        })
-        sdk.Shortcuts.createShortcut({
-            callback: function() {
-                createSharpCurveNote()
-            },
-            description: "Create Sharp Curve Note",
-            shortcutId: "create-sharp-curve-note",
-            shortcutKeys: null
-        })
-        sdk.Shortcuts.createShortcut({
-            callback: function() {
-                createComplexIntersectionNote()
-            },
-            description: "Create Complex Intersection Note",
-            shortcutId: "create-complex-intersection-note",
-            shortcutKeys: null
-        })
-        sdk.Shortcuts.createShortcut({
-            callback: function() {
-                createMultipleLanesMergingNote()
-            },
-            description: "Create Multiple Lanes Merging Note",
-            shortcutId: "create-multiple-lanes-merging-note",
-            shortcutKeys: null
-        })
-        sdk.Shortcuts.createShortcut({
-            callback: function() {
-                createSpeedBumpMapNote()
-            },
-            description: "Create Speed Bump Note",
-            shortcutId: "create-speed-bump-note",
-            shortcutKeys: null
-        })
-        sdk.Shortcuts.createShortcut({
-            callback: function() {
-                createTollboothNote()
-            },
-            description: "Create Tollbooth Note",
-            shortcutId: "create-tollbooth-note",
-            shortcutKeys: null
-        })
+        const registeredShortcuts = wmeSdk.Shortcuts.getAllShortcuts().map((x) => x.shortcutId)
+        if (!registeredShortcuts.includes("create-railroad-crossing-note")) {
+            sdk.Shortcuts.createShortcut({
+                callback: function() {
+                    createRailroadCrossingNote()
+                },
+                description: "Create Railroad Crossing Note",
+                shortcutId: "create-railroad-crossing-note",
+                shortcutKeys: null
+            })
+        }
+        if (!registeredShortcuts.includes("create-school-zone-note")) {
+            sdk.Shortcuts.createShortcut({
+                callback: function() {
+                    createSchoolZoneMapNote()
+                },
+                description: "Create School Zone Note",
+                shortcutId: "create-school-zone-note",
+                shortcutKeys: null
+            })
+        }
+        if (!registeredShortcuts.includes("create-sharp-curve-note")) {
+            sdk.Shortcuts.createShortcut({
+                callback: function() {
+                    createSharpCurveNote()
+                },
+                description: "Create Sharp Curve Note",
+                shortcutId: "create-sharp-curve-note",
+                shortcutKeys: null
+            })
+        }
+        if (!registeredShortcuts.includes("create-complex-intersection-note")) {
+            sdk.Shortcuts.createShortcut({
+                callback: function() {
+                    createComplexIntersectionNote()
+                },
+                description: "Create Complex Intersection Note",
+                shortcutId: "create-complex-intersection-note",
+                shortcutKeys: null
+            })
+        }
+        if (!registeredShortcuts.includes("create-multiple-lanes-merging-note")) {
+            sdk.Shortcuts.createShortcut({
+                callback: function() {
+                    createMultipleLanesMergingNote()
+                },
+                description: "Create Multiple Lanes Merging Note",
+                shortcutId: "create-multiple-lanes-merging-note",
+                shortcutKeys: null
+            })
+        }
+        if (!registeredShortcuts.includes("create-speed-bump-note")) {
+            sdk.Shortcuts.createShortcut({
+                callback: function() {
+                    createSpeedBumpMapNote()
+                },
+                description: "Create Speed Bump Note",
+                shortcutId: "create-speed-bump-note",
+                shortcutKeys: null
+            })
+        }
+        if (!registeredShortcuts.includes("create-tollbooth-note")) {
+            sdk.Shortcuts.createShortcut({
+                callback: function() {
+                    createTollboothNote()
+                },
+                description: "Create Tollbooth Note",
+                shortcutId: "create-tollbooth-note",
+                shortcutKeys: null
+            })
+        }
     }
     async function createRailroadCrossingNote() {
         const point = await sdk.Map.drawPoint();
