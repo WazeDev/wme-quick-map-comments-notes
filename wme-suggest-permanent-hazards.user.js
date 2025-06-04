@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Suggest Permanent Hazards
 // @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      0.0.3
+// @version      0.0.4
 // @description  Allow lower level map editors to add a map note for a permanent hazard.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
@@ -103,7 +103,7 @@
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
             subject: "Sharp Curve",
-            body: "Add a Sharp Curve permanent hazard here, once added, delete this map comment."
+            body: "Add a sharp curve permanent hazard here, once added, delete this map comment."
         })
     }
     async function createComplexIntersectionNote() {
@@ -111,7 +111,7 @@
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
             subject: "Complex Intersection",
-            body: "Add a Complex Intersection permanent hazard here, once added, delete this map comment."
+            body: "Add a complex intersection permanent hazard here, once added, delete this map comment."
         })
     }
     async function createMultipleLanesMergingNote() {
@@ -119,7 +119,7 @@
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
             subject: "Multiple Lanes Merging",
-            body: "Add a Multiple Lanes Merging permanent hazard here, once added, delete this map comment."
+            body: "Add a multiple lanes merging permanent hazard here, once added, delete this map comment."
         })
     }
     async function createTollboothNote() {
@@ -127,7 +127,7 @@
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
             subject: "Tollbooth",
-            body: "Add a Tollbooth permanent hazard here, once added, delete this map comment."
+            body: "Add a tollbooth permanent hazard here, once added, delete this map comment."
         })
     }
 })();
