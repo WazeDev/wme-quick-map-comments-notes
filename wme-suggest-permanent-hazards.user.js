@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Suggest Permanent Hazards
 // @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      0.0.8
+// @version      0.0.9
 // @description  Allow lower level map editors to add a map note for a permanent hazard.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
@@ -23,6 +23,7 @@
     let sdkPlus;
     let wmeSdk;
     let shortcutsLocalStorage;
+    let shortcutsArray = [];
     async function initialize() {
         wmeSdk = await getWmeSdk({
             scriptId: "wme-suggest-permanent-hazards",
@@ -32,10 +33,13 @@
             hooks: ["DataModel.MapComments"]
         });
         sdk = sdkPlus || wmeSdk;
+        console.log("wme-suggest-permanent-hazards: Initalizing...")
         shortcutsLocalStorage = localStorage.getItem(localStorageShortcutsItemName);
-        if (shortcutsLocalStorage === null) {
+        if (shortcutsLocalStorage === [] || shortcutsLocalStorage === null || shortcutsLocalStorage === '[]') {
+            console.log("wme-suggest-permanent-hazards: No shortcuts found, creating shortcuts...")
             createShortcuts();
         } else {
+            console.log("wme-suggest-permanent-hazards: Shortcuts found in local storage, importing shortcuts...")
             importShortcuts();
         }
         sdk.Events.on({eventName: "wme-after-edit", eventHandler: function () {storeShortcuts()}})
@@ -47,13 +51,17 @@
         }
     }
     async function storeShortcuts() {
-        let shortcutsJSON = JSON.stringify(sdk.Shortcuts.getAllShortcuts());
+        let shortcutsJSON = JSON.stringify(shortcutsArray);
         localStorage.setItem(localStorageShortcutsItemName, shortcutsJSON)
+    }
+    async function registerShortcut(shortcutData) {
+        shortcutArray.append(shortcutData)
+        sdk.Shortcuts.createShortcut(shortcutData)
     }
     async function createShortcuts() {
         const registeredShortcuts = wmeSdk.Shortcuts.getAllShortcuts().map((x) => x.shortcutId)
         if (!registeredShortcuts.includes("create-railroad-crossing-note")) {
-            sdk.Shortcuts.createShortcut({
+            registerShortcut({
                 callback: function() {
                     createRailroadCrossingNote()
                 },
@@ -63,7 +71,7 @@
             })
         }
         if (!registeredShortcuts.includes("create-school-zone-note")) {
-            sdk.Shortcuts.createShortcut({
+            registerShortcut({
                 callback: function() {
                     createSchoolZoneMapNote()
                 },
@@ -73,7 +81,7 @@
             })
         }
         if (!registeredShortcuts.includes("create-sharp-curve-note")) {
-            sdk.Shortcuts.createShortcut({
+            registerShortcut({
                 callback: function() {
                     createSharpCurveNote()
                 },
@@ -83,7 +91,7 @@
             })
         }
         if (!registeredShortcuts.includes("create-complex-intersection-note")) {
-            sdk.Shortcuts.createShortcut({
+            registerShortcut({
                 callback: function() {
                     createComplexIntersectionNote()
                 },
@@ -93,7 +101,7 @@
             })
         }
         if (!registeredShortcuts.includes("create-multiple-lanes-merging-note")) {
-            sdk.Shortcuts.createShortcut({
+            registerShortcut({
                 callback: function() {
                     createMultipleLanesMergingNote()
                 },
@@ -103,7 +111,7 @@
             })
         }
         if (!registeredShortcuts.includes("create-speed-bump-note")) {
-            sdk.Shortcuts.createShortcut({
+            registerShortcut({
                 callback: function() {
                     createSpeedBumpMapNote()
                 },
@@ -113,7 +121,7 @@
             })
         }
         if (!registeredShortcuts.includes("create-tollbooth-note")) {
-            sdk.Shortcuts.createShortcut({
+            registerShortcut({
                 callback: function() {
                     createTollboothNote()
                 },
