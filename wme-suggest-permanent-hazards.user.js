@@ -47,7 +47,7 @@
     async function importShortcuts() {
         let shortcutsJSObject = JSON.parse(shortcutsLocalStorage)
         for (let shortcut in shortcutsJSObject) {
-            sdk.Shortcuts.createShortcut(shortcut);
+            registerShortcut(shortcut);
         }
     }
     async function storeShortcuts() {
