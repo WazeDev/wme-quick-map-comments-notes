@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Suggest Permanent Hazards
 // @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      0.0.7
+// @version      0.0.8
 // @description  Allow lower level map editors to add a map note for a permanent hazard.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
@@ -18,9 +18,11 @@
 (function() {
     'use strict';
     window.SDK_INITIALIZED.then(initialize);
+    const localStorageShortcutsItemName = "WME_Suggest_Permanent_Hazards_Shortcuts";
     let sdk;
     let sdkPlus;
     let wmeSdk;
+    let shortcutsLocalStorage;
     async function initialize() {
         wmeSdk = await getWmeSdk({
             scriptId: "wme-suggest-permanent-hazards",
@@ -30,9 +32,25 @@
             hooks: ["DataModel.MapComments"]
         });
         sdk = sdkPlus || wmeSdk;
-        addShortcuts();
+        shortcutsLocalStorage = localStorage.getItem(localStorageShortcutsItemName);
+        if (shortcutsLocalStorage === null) {
+            createShortcuts();
+        } else {
+            importShortcuts();
+        }
+        sdk.Events.on({eventName: "wme-after-edit", eventHandler: function () {storeShortcuts()}})
     }
-    async function addShortcuts() {
+    async function importShortcuts() {
+        let shortcutsJSObject = JSON.parse(shortcutsLocalStorage)
+        for (let shortcut in shortcutsJSObject) {
+            sdk.Shortcuts.createShortcut(shortcut);
+        }
+    }
+    async function storeShortcuts() {
+        let shortcutsJSON = JSON.stringify(sdk.Shortcuts.getAllShortcuts());
+        localStorage.setItem(localStorageShortcutsItemName, shortcutsJSON)
+    }
+    async function createShortcuts() {
         const registeredShortcuts = wmeSdk.Shortcuts.getAllShortcuts().map((x) => x.shortcutId)
         if (!registeredShortcuts.includes("create-railroad-crossing-note")) {
             sdk.Shortcuts.createShortcut({
