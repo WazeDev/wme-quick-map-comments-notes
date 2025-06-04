@@ -1,2 +1,3 @@
 # wme-suggest-permanent-hazards
-Allow lower map editors to add a map note for a permanent hazard.
+
+Allow lower level map editors to add a map note for a permanent hazard.
