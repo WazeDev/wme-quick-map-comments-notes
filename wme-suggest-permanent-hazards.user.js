@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Suggest Permanent Hazards
 // @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      0.0.4
+// @version      0.0.5
 // @description  Allow lower level map editors to add a map note for a permanent hazard.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
@@ -35,18 +35,18 @@
     async function addShortcuts() {
         sdk.Shortcuts.createShortcut({
             callback: function() {
-                createSpeedBumpMapNote()
-            },
-            description: "Create Speed Bump Note",
-            shortcutId: "create-speed-bump-note",
-            shortcutKeys: null
-        })
-        sdk.Shortcuts.createShortcut({
-            callback: function() {
                 createRailroadCrossingNote()
             },
             description: "Create Railroad Crossing Note",
             shortcutId: "create-railroad-crossing-note",
+            shortcutKeys: null
+        })
+        sdk.Shortcuts.createShortcut({
+            callback: function() {
+                createSchoolZoneMapNote()
+            },
+            description: "Create School Zone Note",
+            shortcutId: "create-school-zone-note",
             shortcutKeys: null
         })
         sdk.Shortcuts.createShortcut({
@@ -75,19 +75,19 @@
         })
         sdk.Shortcuts.createShortcut({
             callback: function() {
+                createSpeedBumpMapNote()
+            },
+            description: "Create Speed Bump Note",
+            shortcutId: "create-speed-bump-note",
+            shortcutKeys: null
+        })
+        sdk.Shortcuts.createShortcut({
+            callback: function() {
                 createTollboothNote()
             },
             description: "Create Tollbooth Note",
             shortcutId: "create-tollbooth-note",
             shortcutKeys: null
-        })
-    }
-    async function createSpeedBumpMapNote() {
-        const point = await sdk.Map.drawPoint();
-        await sdk.DataModel.MapComments.addMapComment({
-            geometry: point,
-            subject: "Speed Bump",
-            body: "Add a speed bump permanent hazard here, once added, delete this map comment."
         })
     }
     async function createRailroadCrossingNote() {
@@ -96,6 +96,19 @@
             geometry: point,
             subject: "Railroad Crossing",
             body: "Add a railroad crossing permanent hazard here, once added, delete this map comment."
+        })
+    }
+    async function createSchoolZoneMapNote() {
+        const polygon = await sdk.Map.drawPolygon();
+        await sdk.DataModel.MapComments.addMapComment({
+            geometry: polygon,
+            subject: "School Zone",
+            body: `
+            Name:
+            Speed Limit (optional):
+            Exclude Road Types (optional):
+            Schedule (optional):
+            `
         })
     }
     async function createSharpCurveNote() {
@@ -120,6 +133,14 @@
             geometry: point,
             subject: "Multiple Lanes Merging",
             body: "Add a multiple lanes merging permanent hazard here, once added, delete this map comment."
+        })
+    }
+    async function createSpeedBumpMapNote() {
+        const point = await sdk.Map.drawPoint();
+        await sdk.DataModel.MapComments.addMapComment({
+            geometry: point,
+            subject: "Speed Bump",
+            body: "Add a speed bump permanent hazard here, once added, delete this map comment."
         })
     }
     async function createTollboothNote() {
