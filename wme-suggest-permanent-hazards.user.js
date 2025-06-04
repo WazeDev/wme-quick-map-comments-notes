@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Suggest Permanent Hazards
 // @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      0.0.5
+// @version      0.0.6
 // @description  Allow lower level map editors to add a map note for a permanent hazard.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
@@ -103,12 +103,7 @@
         await sdk.DataModel.MapComments.addMapComment({
             geometry: polygon,
             subject: "School Zone",
-            body: `
-            Name:
-            Speed Limit (optional):
-            Exclude Road Types (optional):
-            Schedule (optional):
-            `
+            body: "Name:\nSpeed Limit (optional):\nExclude Road Types (optional):\nSchedule (optional):"
         })
     }
     async function createSharpCurveNote() {
