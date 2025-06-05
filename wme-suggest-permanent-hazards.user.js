@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Suggest Permanent Hazards
 // @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      0.0.9
+// @version      0.0.10
 // @description  Allow lower level map editors to add a map note for a permanent hazard.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
@@ -34,15 +34,16 @@
         });
         sdk = sdkPlus || wmeSdk;
         console.log("wme-suggest-permanent-hazards: Initalizing...")
-        shortcutsLocalStorage = localStorage.getItem(localStorageShortcutsItemName);
-        if (shortcutsLocalStorage === [] || shortcutsLocalStorage === null || shortcutsLocalStorage === '[]') {
-            console.log("wme-suggest-permanent-hazards: No shortcuts found, creating shortcuts...")
-            createShortcuts();
-        } else {
-            console.log("wme-suggest-permanent-hazards: Shortcuts found in local storage, importing shortcuts...")
-            importShortcuts();
-        }
-        sdk.Events.on({eventName: "wme-after-edit", eventHandler: function () {storeShortcuts()}})
+        //shortcutsLocalStorage = localStorage.getItem(localStorageShortcutsItemName);
+        createShortcuts();
+        //if (shortcutsLocalStorage === [] || shortcutsLocalStorage === null || shortcutsLocalStorage === '[]') {
+            //console.log("wme-suggest-permanent-hazards: No shortcuts found, creating shortcuts...")
+            //createShortcuts();
+       // } else {
+            //console.log("wme-suggest-permanent-hazards: Shortcuts found in local storage, importing shortcuts...")
+            //importShortcuts();
+        //}
+        //sdk.Events.on({eventName: "wme-after-edit", eventHandler: function () {storeShortcuts()}})
     }
     async function importShortcuts() {
         let shortcutsJSObject = JSON.parse(shortcutsLocalStorage)
@@ -55,7 +56,7 @@
         localStorage.setItem(localStorageShortcutsItemName, shortcutsJSON)
     }
     async function registerShortcut(shortcutData) {
-        shortcutArray.append(shortcutData)
+        //shortcutArray.append(shortcutData)
         sdk.Shortcuts.createShortcut(shortcutData)
     }
     async function createShortcuts() {
