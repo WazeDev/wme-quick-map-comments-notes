@@ -12,6 +12,6 @@ Allow lower level map editors to add a map note for a permanent hazard.
 - Tollbooth
   
 ## Usage
-1. Go to keyboard shortcuts at the bottom
+1. Go to keyboard shortcuts at the bottom of Waze Map Editor
 2. Scroll down to WME Suggest Permanent Hazards
 3. Assign shortcuts to each hazard suggestion
