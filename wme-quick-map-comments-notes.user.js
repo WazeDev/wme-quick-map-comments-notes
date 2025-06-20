@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         WME Quick Map Comments/Notes
 // @namespace    https://github.com/WazeDev/wme-quick-map-comments-notes
-// @version      0.0.11
+// @version      0.0.13
 // @description  Allow map editors to add map notes/comments for permanent hazards, no U-turn signs or aerials out-of-date.
-// @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
+// @author       Gavin Canon-Phratsachack
 // @match        https://beta.waze.com/*editor*
 // @match        https://www.waze.com/*editor*
 // @exclude      https://www.waze.com/*user/*editor/*
@@ -11,216 +11,236 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=waze.com
 // @license      MIT
 // @grant        none
-// @require https://cdn.jsdelivr.net/gh/WazeSpace/wme-sdk-plus@06108853094d40f67e923ba0fe0de31b1cec4412/wme-sdk-plus.js
+// @require      https://cdn.jsdelivr.net/gh/WazeSpace/wme-sdk-plus@06108853094d40f67e923ba0fe0de31b1cec4412/wme-sdk-plus.js
 // ==/UserScript==
 
-(function() {
-    'use strict';
-    window.SDK_INITIALIZED.then(initialize);
-    const localStorageShortcutsItemName = "WME_QuickMapCommentsNotes_Shortcuts";
-    let sdk;
-    let sdkPlus;
-    let wmeSdk;
-    let shortcutsLocalStorage;
-    let shortcutsArray = [];
+(async function() {
+    'use strict'
+    window.SDK_INITIALIZED.then(initialize)
+
+    const STORAGE_KEY = 'WME_QuickMapCommentsNotes_Shortcuts'
+    let sdk
+
+    // — Default definitions with real callback refs ——————————
+    const defaultDefs = [{
+            shortcutId: 'create-railroad-crossing-note',
+            description: 'Create Railroad Crossing Note',
+            callback: createRailroadCrossingNote,
+            shortcutKeys: null
+        },
+        {
+            shortcutId: 'create-school-zone-note',
+            description: 'Create School Zone Note',
+            callback: createSchoolZoneMapNote,
+            shortcutKeys: null
+        },
+        {
+            shortcutId: 'create-sharp-curve-note',
+            description: 'Create Sharp Curve Note',
+            callback: createSharpCurveNote,
+            shortcutKeys: null
+        },
+        {
+            shortcutId: 'create-complex-intersection-note',
+            description: 'Create Complex Intersection Note',
+            callback: createComplexIntersectionNote,
+            shortcutKeys: null
+        },
+        {
+            shortcutId: 'create-multiple-lanes-merging-note',
+            description: 'Create Multiple Lanes Merging Note',
+            callback: createMultipleLanesMergingNote,
+            shortcutKeys: null
+        },
+        {
+            shortcutId: 'create-speed-bump-note',
+            description: 'Create Speed Bump Note',
+            callback: createSpeedBumpMapNote,
+            shortcutKeys: null
+        },
+        {
+            shortcutId: 'create-tollbooth-note',
+            description: 'Create Tollbooth Note',
+            callback: createTollboothNote,
+            shortcutKeys: null
+        },
+        {
+            shortcutId: 'create-no-uturn-sign-present-note',
+            description: 'Create No U-turn Sign Note',
+            callback: createNoUTurnSignPresentMapNote,
+            shortcutKeys: null
+        },
+        {
+            shortcutId: 'create-aerials-ood-note',
+            description: 'Create Aerials Out-of-Date Note',
+            callback: createAerialsOODMapNote,
+            shortcutKeys: null
+        }
+    ]
+
     async function initialize() {
-        wmeSdk = await getWmeSdk({
-            scriptId: "wme-quick-map-comments-notes",
-            scriptName: "WME Quick Map Comments/Notes"
-        });
-        sdkPlus = await initWmeSdkPlus(wmeSdk, {
-            hooks: ["DataModel.MapComments"]
-        });
-        sdk = sdkPlus || wmeSdk;
-        console.log("wme-quick-map-comments-notes: Initalizing...")
-        shortcutsLocalStorage = localStorage.getItem(localStorageShortcutsItemName);
-        createShortcuts();
-        if (shortcutsLocalStorage === [] || shortcutsLocalStorage === null || shortcutsLocalStorage === '[]') {
-            console.log("wme-quick-map-comments-notes: No shortcuts found, creating shortcuts...")
-            createShortcuts();
+        const wmeSdk = await getWmeSdk({
+            scriptId: 'wme-quick-map-comments-notes',
+            scriptName: 'WME Quick Map Comments/Notes'
+        })
+        const sdkPlus = await initWmeSdkPlus(wmeSdk, {
+            hooks: ['DataModel.MapComments']
+        })
+        sdk = sdkPlus || wmeSdk
+
+        console.log('wme-qmcn: initializing…')
+
+        // load {id,description,shortcutKeys} list from localStorage
+        let storedList = []
+        try {
+            storedList = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+        } catch (e) {
+            console.warn(
+                'wme-qmcn: could not parse stored shortcuts, resetting to defaults'
+            )
+            storedList = []
+        }
+
+        const existingIds = sdk.Shortcuts
+            .getAllShortcuts()
+            .map(s => s.shortcutId)
+
+        if (storedList.length) {
+            console.log('wme-qmcn: importing stored shortcuts')
+            for (const st of storedList) {
+                const def = defaultDefs.find(d => d.shortcutId === st.shortcutId)
+                if (!def) {
+                    console.warn(`wme-qmcn: unknown shortcutId ${st.shortcutId}`)
+                    continue
+                }
+                const toCreate = {
+                    shortcutId: def.shortcutId,
+                    description: def.description,
+                    callback: def.callback,
+                    shortcutKeys: st.shortcutKeys
+                }
+                if (!existingIds.includes(def.shortcutId)) {
+                    sdk.Shortcuts.createShortcut(toCreate)
+                }
+            }
         } else {
-            console.log("wme-quick-map-comments-notes: Shortcuts found in local storage, importing shortcuts...")
-            importShortcuts();
+            console.log('wme-qmcn: no stored shortcuts, registering defaults')
+            for (const def of defaultDefs) {
+                if (!existingIds.includes(def.shortcutId)) {
+                    sdk.Shortcuts.createShortcut(def)
+                }
+            }
         }
-        sdk.Events.on({eventName: "wme-after-edit", eventHandler: function () {storeShortcuts()}})
+
+        // any time shortcuts change, persist the real current keys out of WME
+        sdk.Events.on({
+            eventName: 'wme-after-edit',
+            eventHandler: storeShortcuts
+        })
     }
-    async function importShortcuts() {
-        let shortcutsJSObject = JSON.parse(shortcutsLocalStorage)
-        for (let shortcut in shortcutsJSObject) {
-            registerShortcut(shortcut);
-        }
+
+    function storeShortcuts() {
+        // grab all, filter to ours, then store real current shortcutKeys
+        console.log("wme-qmcn: Storing shortcuts...");
+        const ours = new Set(defaultDefs.map(d => d.shortcutId))
+        const toStore = sdk.Shortcuts
+            .getAllShortcuts()
+            .filter(s => ours.has(s.shortcutId))
+            .map(s => ({
+                shortcutId: s.shortcutId,
+                description: s.description,
+                shortcutKeys: s.shortcutKeys
+            }))
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore))
     }
-    async function storeShortcuts() {
-        let shortcutsJSON = JSON.stringify(shortcutsArray);
-        localStorage.setItem(localStorageShortcutsItemName, shortcutsJSON)
-    }
-    async function registerShortcut(shortcutData) {
-        shortcutArray.append(shortcutData)
-        sdk.Shortcuts.createShortcut(shortcutData)
-    }
-    async function createShortcuts() {
-        const registeredShortcuts = wmeSdk.Shortcuts.getAllShortcuts().map((x) => x.shortcutId)
-        if (!registeredShortcuts.includes("create-railroad-crossing-note")) {
-            registerShortcut({
-                callback: function() {
-                    createRailroadCrossingNote()
-                },
-                description: "Create Railroad Crossing Note",
-                shortcutId: "create-railroad-crossing-note",
-                shortcutKeys: null
-            })
-        }
-        if (!registeredShortcuts.includes("create-school-zone-note")) {
-            registerShortcut({
-                callback: function() {
-                    createSchoolZoneMapNote()
-                },
-                description: "Create School Zone Note",
-                shortcutId: "create-school-zone-note",
-                shortcutKeys: null
-            })
-        }
-        if (!registeredShortcuts.includes("create-sharp-curve-note")) {
-            registerShortcut({
-                callback: function() {
-                    createSharpCurveNote()
-                },
-                description: "Create Sharp Curve Note",
-                shortcutId: "create-sharp-curve-note",
-                shortcutKeys: null
-            })
-        }
-        if (!registeredShortcuts.includes("create-complex-intersection-note")) {
-            registerShortcut({
-                callback: function() {
-                    createComplexIntersectionNote()
-                },
-                description: "Create Complex Intersection Note",
-                shortcutId: "create-complex-intersection-note",
-                shortcutKeys: null
-            })
-        }
-        if (!registeredShortcuts.includes("create-multiple-lanes-merging-note")) {
-            registerShortcut({
-                callback: function() {
-                    createMultipleLanesMergingNote()
-                },
-                description: "Create Multiple Lanes Merging Note",
-                shortcutId: "create-multiple-lanes-merging-note",
-                shortcutKeys: null
-            })
-        }
-        if (!registeredShortcuts.includes("create-speed-bump-note")) {
-            registerShortcut({
-                callback: function() {
-                    createSpeedBumpMapNote()
-                },
-                description: "Create Speed Bump Note",
-                shortcutId: "create-speed-bump-note",
-                shortcutKeys: null
-            })
-        }
-        if (!registeredShortcuts.includes("create-tollbooth-note")) {
-            registerShortcut({
-                callback: function() {
-                    createTollboothNote()
-                },
-                description: "Create Tollbooth Note",
-                shortcutId: "create-tollbooth-note",
-                shortcutKeys: null
-            })
-        }
-        if (!registeredShortcuts.includes("create-no-uturn-sign-present-note")) {
-            registerShortcut({
-                callback: function() {
-                    createNoUTurnSignPresentMapNote()
-                },
-                description: "Create No U-turn Sign Note",
-                shortcutId: "create-no-uturn-sign-present-note",
-                shortcutKeys: null
-            })
-        }
-        if (!registeredShortcuts.includes("create-aerials-ood-note")) {
-            registerShortcut({
-                callback: function() {
-                    createAerialsOODMapNote()
-                },
-                description: "Create Aerials Out-of-Date Note",
-                shortcutId: "create-aerials-ood-note",
-                shortcutKeys: null
-            })
-        }
-    }
+
+    // — Map-note helpers ——————————————————————————————————
+
     async function createRailroadCrossingNote() {
-        const point = await sdk.Map.drawPoint();
+        const point = await sdk.Map.drawPoint()
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
-            subject: "Railroad Crossing",
-            body: "Add a railroad crossing permanent hazard here, once added, delete this map comment."
+            subject: 'Railroad Crossing',
+            body: 'Add a railroad crossing permanent hazard here, once added, delete ' +
+                'this map comment.'
         })
     }
+
     async function createSchoolZoneMapNote() {
-        const polygon = await sdk.Map.drawPolygon();
+        const polygon = await sdk.Map.drawPolygon()
         await sdk.DataModel.MapComments.addMapComment({
             geometry: polygon,
-            subject: "School Zone",
-            body: "Name:\nSpeed Limit (optional):\nExclude Road Types (optional):\nSchedule (optional):"
+            subject: 'School Zone',
+            body: 'Name:\nSpeed Limit (optional):\nExclude Road Types (optional):\n' +
+                'Schedule (optional):'
         })
     }
+
     async function createSharpCurveNote() {
-        const point = await sdk.Map.drawPoint();
+        const point = await sdk.Map.drawPoint()
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
-            subject: "Sharp Curve",
-            body: "Add a sharp curve permanent hazard here, once added, delete this map comment."
+            subject: 'Sharp Curve',
+            body: 'Add a sharp curve permanent hazard here, once added, delete this ' +
+                'map comment.'
         })
     }
+
     async function createComplexIntersectionNote() {
-        const point = await sdk.Map.drawPoint();
+        const point = await sdk.Map.drawPoint()
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
-            subject: "Complex Intersection",
-            body: "Add a complex intersection permanent hazard here, once added, delete this map comment."
+            subject: 'Complex Intersection',
+            body: 'Add a complex intersection permanent hazard here, once added, delete ' +
+                'this map comment.'
         })
     }
+
     async function createMultipleLanesMergingNote() {
-        const point = await sdk.Map.drawPoint();
+        const point = await sdk.Map.drawPoint()
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
-            subject: "Multiple Lanes Merging",
-            body: "Add a multiple lanes merging permanent hazard here, once added, delete this map comment."
+            subject: 'Multiple Lanes Merging',
+            body: 'Add a multiple lanes merging permanent hazard here, once added, ' +
+                'delete this map comment.'
         })
     }
+
     async function createSpeedBumpMapNote() {
-        const point = await sdk.Map.drawPoint();
+        const point = await sdk.Map.drawPoint()
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
-            subject: "Speed Bump",
-            body: "Add a speed bump permanent hazard here, once added, delete this map comment."
+            subject: 'Speed Bump',
+            body: 'Add a speed bump permanent hazard here, once added, delete this ' +
+                'map comment.'
         })
     }
+
     async function createTollboothNote() {
-        const point = await sdk.Map.drawPoint();
+        const point = await sdk.Map.drawPoint()
         await sdk.DataModel.MapComments.addMapComment({
             geometry: point,
-            subject: "Tollbooth",
-            body: "Add a tollbooth permanent hazard here, once added, delete this map comment."
+            subject: 'Tollbooth',
+            body: 'Add a tollbooth permanent hazard here, once added, delete this ' +
+                'map comment.'
         })
     }
+
+    async function createNoUTurnSignPresentMapNote() {
+        const point = await sdk.Map.drawPoint()
+        await sdk.DataModel.MapComments.addMapComment({
+            geometry: point,
+            subject: 'No U-turn Sign Present',
+            body: 'There is a No U-turn sign here.'
+        })
+    }
+
     async function createAerialsOODMapNote() {
-        const polygon = await sdk.Map.drawPolygon();
+        const polygon = await sdk.Map.drawPolygon()
         await sdk.DataModel.MapComments.addMapComment({
             geometry: polygon,
-            subject: "Aerials Out of Date",
-            body: "Delete this map comment when aerials are updated."
+            subject: 'Aerials Out of Date',
+            body: 'Delete this map comment when aerials are updated.'
         })
     }
-    async function createNoUTurnSignPresentMapNote() {
-        const point = await sdk.Map.drawPoint();
-        await sdk.DataModel.MapComments.addMapComment({
-            geometry: point,
-            subject: "No U-turn sign present",
-            body: "There is a No U-turn sign here."
-        })
-    }
-})();
+})()
