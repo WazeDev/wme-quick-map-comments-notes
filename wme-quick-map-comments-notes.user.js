@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Quick Map Comments/Notes
 // @namespace    https://github.com/WazeDev/wme-quick-map-comments-notes
-// @version      0.0.14
+// @version      0.0.13
 // @description  Allow map editors to add map notes/comments for permanent hazards, no U-turn signs or aerials out-of-date.
 // @author       Gavin Canon-Phratsachack
 // @match        https://beta.waze.com/*editor*
@@ -93,10 +93,13 @@
      * @returns {string}             e.g. "S+85"
      */
     function convertShortcutKeys(shortcutKeys) {
-        const [modMaskStr, keyCode] = shortcutKeys.split(",");
-        const modMask = parseInt(modMaskStr, 10);
-        const modString = KeyModifiers[modMask] || "";
-        return modString ? `${modString}+${keyCode}` : keyCode;
+        if (shortcutKeys !== null) {
+            const [modMaskStr, keyCode] = shortcutKeys.split(",");
+            const modMask = parseInt(modMaskStr, 10);
+            const modString = KeyModifiers[modMask] || "";
+            return modString ? `${modString}+${keyCode}` : keyCode;
+        }
+        return null;
     }
 
     async function initialize() {
