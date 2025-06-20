@@ -55,7 +55,7 @@
         localStorage.setItem(localStorageShortcutsItemName, shortcutsJSON)
     }
     async function registerShortcut(shortcutData) {
-        //shortcutArray.append(shortcutData)
+        shortcutArray.append(shortcutData)
         sdk.Shortcuts.createShortcut(shortcutData)
     }
     async function createShortcuts() {
