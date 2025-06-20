@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Quick Map Comments/Notes
 // @namespace    https://github.com/WazeDev/wme-quick-map-comments-notes
-// @version      0.0.13
+// @version      0.0.14
 // @description  Allow map editors to add map notes/comments for permanent hazards, no U-turn signs or aerials out-of-date.
 // @author       Gavin Canon-Phratsachack
 // @match        https://beta.waze.com/*editor*
@@ -88,18 +88,31 @@
     };
 
     /**
-     * Convert a WME-style shortcutKeys string into human-readable form.
-     * @param {string} shortcutKeys  e.g. "2,85"
-     * @returns {string}             e.g. "S+85"
+     * Convert a WME-style "modMask,keyCode" string into human-readable form.
+     * - If shortcutKeys is null → returns null.
+     * - If it's not of the form "digits,digits" → returns it unchanged.
+     * - Otherwise looks up the modifier and returns e.g. "S+85".
+     *
+     * @param {string|null} shortcutKeys
+     * @returns {string|null}
      */
     function convertShortcutKeys(shortcutKeys) {
-        if (shortcutKeys !== null) {
-            const [modMaskStr, keyCode] = shortcutKeys.split(",");
-            const modMask = parseInt(modMaskStr, 10);
-            const modString = KeyModifiers[modMask] || "";
-            return modString ? `${modString}+${keyCode}` : keyCode;
+        // 1) null in → null out
+        if (shortcutKeys == null) {
+            return null;
         }
-        return null;
+
+        // 2) if not "number,number", assume already human-readable
+        if (!/^\d+,\d+$/.test(shortcutKeys)) {
+            return shortcutKeys;
+        }
+
+        // 3) split mask + code, map the mask, join with '+'
+        const [maskStr, keyCode] = shortcutKeys.split(",");
+        const mask = parseInt(maskStr, 10);
+        const modString = KeyModifiers[mask] || "";
+
+        return modString ? `${modString}+${keyCode}` : keyCode;
     }
 
     async function initialize() {
