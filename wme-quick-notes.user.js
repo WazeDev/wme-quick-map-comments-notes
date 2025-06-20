@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         WME Suggest Permanent Hazards
-// @namespace    https://github.com/WazeDev/wme-suggest-permanent-hazards
-// @version      0.0.10
-// @description  Allow lower level map editors to add a map note for a permanent hazard.
+// @name         WME Quick Notes
+// @namespace    https://github.com/WazeDev/wme-quick-notes
+// @version      0.0.11
+// @description  Allow map editors to add map notes/comments for permanment hazards, no U-turn signs or aerials out-of-date.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
 // @match        https://www.waze.com/*editor*
@@ -11,14 +11,12 @@
 // @license      MIT
 // @grant        none
 // @require https://cdn.jsdelivr.net/gh/WazeSpace/wme-sdk-plus@06108853094d40f67e923ba0fe0de31b1cec4412/wme-sdk-plus.js
-// @downloadURL https://update.greasyfork.org/scripts/538361/WME%20Suggest%20Permanent%20Hazards.user.js
-// @updateURL https://update.greasyfork.org/scripts/538361/WME%20Suggest%20Permanent%20Hazards.meta.js
 // ==/UserScript==
 
 (function() {
     'use strict';
     window.SDK_INITIALIZED.then(initialize);
-    const localStorageShortcutsItemName = "WME_Suggest_Permanent_Hazards_Shortcuts";
+    const localStorageShortcutsItemName = "WME_QuickNotes_Shortcuts";
     let sdk;
     let sdkPlus;
     let wmeSdk;
@@ -26,24 +24,24 @@
     let shortcutsArray = [];
     async function initialize() {
         wmeSdk = await getWmeSdk({
-            scriptId: "wme-suggest-permanent-hazards",
-            scriptName: "WME Suggest Permanent Hazards"
-        }); // Assuming getWmeSdk is your method to get the native SDK.
+            scriptId: "wme-quick-notes",
+            scriptName: "WME Quick Notes"
+        });
         sdkPlus = await initWmeSdkPlus(wmeSdk, {
             hooks: ["DataModel.MapComments"]
         });
         sdk = sdkPlus || wmeSdk;
-        console.log("wme-suggest-permanent-hazards: Initalizing...")
-        //shortcutsLocalStorage = localStorage.getItem(localStorageShortcutsItemName);
+        console.log("wme-quick-notes: Initalizing...")
+        shortcutsLocalStorage = localStorage.getItem(localStorageShortcutsItemName);
         createShortcuts();
-        //if (shortcutsLocalStorage === [] || shortcutsLocalStorage === null || shortcutsLocalStorage === '[]') {
-            //console.log("wme-suggest-permanent-hazards: No shortcuts found, creating shortcuts...")
-            //createShortcuts();
-       // } else {
-            //console.log("wme-suggest-permanent-hazards: Shortcuts found in local storage, importing shortcuts...")
-            //importShortcuts();
-        //}
-        //sdk.Events.on({eventName: "wme-after-edit", eventHandler: function () {storeShortcuts()}})
+        if (shortcutsLocalStorage === [] || shortcutsLocalStorage === null || shortcutsLocalStorage === '[]') {
+            console.log("wme-quick-notes: No shortcuts found, creating shortcuts...")
+            createShortcuts();
+        } else {
+            console.log("wme-quick-notes: Shortcuts found in local storage, importing shortcuts...")
+            importShortcuts();
+        }
+        sdk.Events.on({eventName: "wme-after-edit", eventHandler: function () {storeShortcuts()}})
     }
     async function importShortcuts() {
         let shortcutsJSObject = JSON.parse(shortcutsLocalStorage)
@@ -131,6 +129,26 @@
                 shortcutKeys: null
             })
         }
+        if (!registeredShortcuts.includes("create-no-uturn-sign-present-note")) {
+            registerShortcut({
+                callback: function() {
+                    createNoUTurnSignPresentMapNote()
+                },
+                description: "Create No U-turn Sign Note",
+                shortcutId: "create-no-uturn-sign-present-note",
+                shortcutKeys: null
+            })
+        }
+        if (!registeredShortcuts.includes("create-aerials-ood-note")) {
+            registerShortcut({
+                callback: function() {
+                    createAerialsOODMapNote()
+                },
+                description: "Create Aerials Out-of-Date Note",
+                shortcutId: "create-aerials-ood-note",
+                shortcutKeys: null
+            })
+        }
     }
     async function createRailroadCrossingNote() {
         const point = await sdk.Map.drawPoint();
@@ -186,6 +204,22 @@
             geometry: point,
             subject: "Tollbooth",
             body: "Add a tollbooth permanent hazard here, once added, delete this map comment."
+        })
+    }
+    async function createAerialsOODMapNote() {
+        const polygon = await sdk.Map.drawPolygon();
+        await sdk.DataModel.MapComments.addMapComment({
+            geometry: polygon,
+            subject: "Aerials Out of Date",
+            body: "Delete this map comment when aerials are updated."
+        })
+    }
+    async function createNoUTurnSignPresentMapNote() {
+        const point = await sdk.Map.drawPoint();
+        await sdk.DataModel.MapComments.addMapComment({
+            geometry: point,
+            subject: "No U-turn sign present",
+            body: "There is a No U-turn sign here."
         })
     }
 })();
