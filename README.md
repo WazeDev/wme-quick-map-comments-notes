@@ -1,17 +1,19 @@
-# wme-suggest-permanent-hazards
+# wme-quick-notes
 
-Allow lower level map editors to add a map note for a permanent hazard.
+Allow map editors to add map notes/comments for permanment hazards, no U-turn signs or aerials out-of-date.
 
-## Currently Supported Permanent Hazards
-- Railroad Crossing
-- School Zone
-- Sharp Curve
-- Complex Intersection
-- Multiple Lanes Merging
-- Speed Bump
-- Tollbooth
+## Currently Supported Quick Notes/Comments
+- Permanent Hazard: Railroad Crossing
+- Permanent Hazard: School Zone
+- Permanent Hazard: Sharp Curve
+- Permanent Hazard: Complex Intersection
+- Permanent Hazard: Multiple Lanes Merging
+- Permanent Hazard: Speed Bump
+- Permanent Hazard: Tollbooth
+- No U-turn Sign Present
+- Aerials Out-of-Date
   
 ## Usage
 1. Go to keyboard shortcuts at the bottom of Waze Map Editor
-2. Scroll down to WME Suggest Permanent Hazards
-3. Assign shortcuts to each hazard suggestion
+2. Scroll down to WME Quick Notes
+3. Assign shortcuts to each quick note.
