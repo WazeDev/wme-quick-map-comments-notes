@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Quick Map Comments/Notes
 // @namespace    https://github.com/WazeDev/wme-quick-map-comments-notes
-// @version      0.0.13
+// @version      0.0.14
 // @description  Allow map editors to add map notes/comments for permanent hazards, no U-turn signs or aerials out-of-date.
 // @author       Gavin Canon-Phratsachack
 // @match        https://beta.waze.com/*editor*
@@ -77,6 +77,27 @@
             shortcutKeys: null
         }
     ]
+    const KeyModifiers = {
+        1: "C",
+        2: "S",
+        3: "CS",
+        4: "A",
+        5: "AC",
+        6: "AS",
+        7: "ACS"
+    };
+
+    /**
+     * Convert a WME-style shortcutKeys string into human-readable form.
+     * @param {string} shortcutKeys  e.g. "2,85"
+     * @returns {string}             e.g. "S+85"
+     */
+    function convertShortcutKeys(shortcutKeys) {
+        const [modMaskStr, keyCode] = shortcutKeys.split(",");
+        const modMask = parseInt(modMaskStr, 10);
+        const modString = KeyModifiers[modMask] || "";
+        return modString ? `${modString}+${keyCode}` : keyCode;
+    }
 
     async function initialize() {
         const wmeSdk = await getWmeSdk({
@@ -117,7 +138,7 @@
                     shortcutId: def.shortcutId,
                     description: def.description,
                     callback: def.callback,
-                    shortcutKeys: st.shortcutKeys
+                    shortcutKeys: convertShortcutKeys(st.shortcutKeys)
                 }
                 if (!existingIds.includes(def.shortcutId)) {
                     sdk.Shortcuts.createShortcut(toCreate)
