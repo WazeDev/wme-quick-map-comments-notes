@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         WME Quick Notes
-// @namespace    https://github.com/WazeDev/wme-quick-notes
+// @name         WME Quick Map Comments/Notes
+// @namespace    https://github.com/WazeDev/wme-quick-map-comments-notes
 // @version      0.0.11
 // @description  Allow map editors to add map notes/comments for permanment hazards, no U-turn signs or aerials out-of-date.
 // @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
@@ -16,7 +16,7 @@
 (function() {
     'use strict';
     window.SDK_INITIALIZED.then(initialize);
-    const localStorageShortcutsItemName = "WME_QuickNotes_Shortcuts";
+    const localStorageShortcutsItemName = "WME_QuickMapCommentsNotes_Shortcuts";
     let sdk;
     let sdkPlus;
     let wmeSdk;
@@ -24,21 +24,21 @@
     let shortcutsArray = [];
     async function initialize() {
         wmeSdk = await getWmeSdk({
-            scriptId: "wme-quick-notes",
-            scriptName: "WME Quick Notes"
+            scriptId: "wme-quick-map-comments-notes",
+            scriptName: "WME Quick Map Comments/Notes"
         });
         sdkPlus = await initWmeSdkPlus(wmeSdk, {
             hooks: ["DataModel.MapComments"]
         });
         sdk = sdkPlus || wmeSdk;
-        console.log("wme-quick-notes: Initalizing...")
+        console.log("wme-quick-map-comments-notes: Initalizing...")
         shortcutsLocalStorage = localStorage.getItem(localStorageShortcutsItemName);
         createShortcuts();
         if (shortcutsLocalStorage === [] || shortcutsLocalStorage === null || shortcutsLocalStorage === '[]') {
-            console.log("wme-quick-notes: No shortcuts found, creating shortcuts...")
+            console.log("wme-quick-map-comments-notes: No shortcuts found, creating shortcuts...")
             createShortcuts();
         } else {
-            console.log("wme-quick-notes: Shortcuts found in local storage, importing shortcuts...")
+            console.log("wme-quick-map-comments-notes: Shortcuts found in local storage, importing shortcuts...")
             importShortcuts();
         }
         sdk.Events.on({eventName: "wme-after-edit", eventHandler: function () {storeShortcuts()}})
