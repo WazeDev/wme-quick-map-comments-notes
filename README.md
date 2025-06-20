@@ -1,6 +1,6 @@
 # wme-quick-map-comments-notes
 
-Allow map editors to add map notes/comments for permanment hazards, no U-turn signs or aerials out-of-date.
+Allow map editors to add map notes/comments for permanent hazards, no U-turn signs or aerials out-of-date.
 
 ## Currently Supported Quick Notes/Comments
 - Permanent Hazard: Railroad Crossing
