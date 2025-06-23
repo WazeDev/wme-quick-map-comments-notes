@@ -3,7 +3,7 @@
 // @namespace    https://github.com/WazeDev/wme-quick-map-comments-notes
 // @version      0.0.14
 // @description  Allow map editors to add map notes/comments for permanent hazards, no U-turn signs or aerials out-of-date.
-// @author       Gavin Canon-Phratsachack
+// @author       Gavin Canon-Phratsachack (https://github.com/gncnpk)
 // @match        https://beta.waze.com/*editor*
 // @match        https://www.waze.com/*editor*
 // @exclude      https://www.waze.com/*user/*editor/*
