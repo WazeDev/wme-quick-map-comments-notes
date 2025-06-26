@@ -10,6 +10,7 @@
 // @exclude      https://www.waze.com/discuss/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=waze.com
 // @license      MIT
+// @contributionURL https://github.com/WazeDev/Thank-The-Authors
 // @grant        none
 // @require      https://cdn.jsdelivr.net/gh/WazeSpace/wme-sdk-plus@06108853094d40f67e923ba0fe0de31b1cec4412/wme-sdk-plus.js
 // ==/UserScript==
